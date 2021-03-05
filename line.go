@@ -4,6 +4,14 @@ import (
 	"strings"
 )
 
+// When the DelayedSyntaxWorker gives us a new line, we need to check if there
+// is any processing to be made, that all lines match in terms of content.
+func (rl *Instance) updateLine(line []rune) {
+	if len(rl.currentComp) > 0 {
+
+	}
+}
+
 func (rl *Instance) echo() {
 
 	// Then we print the prompt, and the line,
@@ -18,7 +26,7 @@ func (rl *Instance) echo() {
 		print(seqClearScreenBelow)
 
 		// Print the prompt
-		print(string(rl.mlnPrompt))
+		print(string(rl.realPrompt))
 
 		// Assemble the line, taking virtual completions into account
 		var line []rune

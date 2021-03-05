@@ -28,6 +28,18 @@ type History interface {
 	Dump() interface{}
 }
 
+// SetHistoryCtrlE - Set the history source triggered with Ctrl-E combination
+func (rl *Instance) SetHistoryCtrlE(name string, history History) {
+	rl.altHistName = name
+	rl.altHistory = history
+}
+
+// SetHistoryCtrlR - Set the history source triggered with Ctrl-R combination
+func (rl *Instance) SetHistoryCtrlR(name string, history History) {
+	rl.mainHistName = name
+	rl.mainHistory = history
+}
+
 // ExampleHistory is an example of a LineHistory interface:
 type ExampleHistory struct {
 	items []string
@@ -110,7 +122,7 @@ func (rl *Instance) walkHistory(i int) {
 		if err != nil {
 			rl.resetHelpers()
 			print("\r\n" + err.Error() + "\r\n")
-			print(rl.prompt)
+			print(rl.mainPrompt)
 			return
 		}
 
@@ -121,18 +133,6 @@ func (rl *Instance) walkHistory(i int) {
 	}
 
 	rl.updateHelpers()
-}
-
-// SetHistoryCtrlE - Set the history source triggered with Ctrl-E combination
-func (rl *Instance) SetHistoryCtrlE(name string, history History) {
-	rl.altHistName = name
-	rl.altHistory = history
-}
-
-// SetHistoryCtrlR - Set the history source triggered with Ctrl-R combination
-func (rl *Instance) SetHistoryCtrlR(name string, history History) {
-	rl.mainHistName = name
-	rl.mainHistory = history
 }
 
 // completeHistory - Populates a CompletionGroup with history and returns it the shell

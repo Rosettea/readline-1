@@ -22,7 +22,7 @@ func (rl *Instance) Readline() (string, error) {
 	// Prompt Init
 	// Here we have to either print prompt and return new line (multiline)
 	if rl.Multiline {
-		fmt.Println(rl.prompt)
+		fmt.Println(rl.mainPrompt)
 	}
 	rl.stillOnRefresh = false
 	rl.computePrompt() // initialise the prompt for first print
@@ -174,7 +174,6 @@ func (rl *Instance) Readline() (string, error) {
 			rl.mainHist = true // false before
 			rl.searchMode = HistoryFind
 			rl.modeAutoFind = true
-			rl.tcOffset = 0
 			rl.modeTabCompletion = true
 
 			rl.modeTabFind = true
@@ -187,7 +186,6 @@ func (rl *Instance) Readline() (string, error) {
 			rl.mainHist = false // true before
 			rl.searchMode = HistoryFind
 			rl.modeAutoFind = true
-			rl.tcOffset = 0
 			rl.modeTabCompletion = true
 
 			rl.modeTabFind = true
@@ -256,7 +254,7 @@ func (rl *Instance) Readline() (string, error) {
 		case charCtrlL:
 			print(seqClearScreen)
 			print(seqCursorTopLeft)
-			fmt.Println(rl.prompt)
+			fmt.Println(rl.mainPrompt)
 			print(seqClearScreenBelow)
 
 			rl.resetHintText()
@@ -561,14 +559,6 @@ func (rl *Instance) editorInput(r []rune) {
 	}
 }
 
-// SetPrompt will define the readline prompt string.
-// It also calculates the runes in the string as well as any non-printable
-// escape codes.
-func (rl *Instance) SetPrompt(s string) {
-	rl.prompt = s
-	// rl.promptLen = strLen(s)
-}
-
 func (rl *Instance) carridgeReturn() {
 	rl.clearHelpers()
 	print("\r\n")
@@ -619,11 +609,11 @@ func (rl *Instance) allowMultiline(data []byte) bool {
 
 		switch s {
 		case "y", "Y":
-			print("\r\n" + rl.prompt)
+			print("\r\n" + rl.mainPrompt)
 			return true
 
 		case "n", "N":
-			print("\r\n" + rl.prompt)
+			print("\r\n" + rl.mainPrompt)
 			return false
 
 		case "p", "P":

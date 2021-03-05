@@ -2,6 +2,25 @@
 
 ## Changes
 
+### 3.1.O
+
+This version is the merge of [maxlandon/readline](https://github.com/maxlandon/readline) 
+and [lmorg/readline](https://github.com/lmorg/readline):
+
+#### Code
+- Enhance delete/copy buffer in Vim mode
+- DelayedTabContext now works with completion groups
+
+#### Packages
+- Added a `completers` package, with a default tab/hint/syntax completer working with 
+ the [go-flags](https://github.com/jessevdk/go-flags) library.
+- The `examples` package has been enhanced with a more complete -base- application code. See the wiki
+
+#### Documentation 
+- Merged relevant parts of both READMEs
+- Use documentation from maxlandon/readline
+
+
 ### 2.1.0
 
 Error returns from `readline` have been created as error a variable, which is

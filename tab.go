@@ -27,7 +27,7 @@ const (
 // getTabCompletion - This root function sets up all completion items and engines,
 // dealing with all search and completion modes. But it does not perform printing.
 func (rl *Instance) getTabCompletion() {
-	rl.tcOffset = 0
+	// rl.tcOffset = 0
 
 	if rl.TabCompleter == nil {
 		return
@@ -368,7 +368,7 @@ func (rl *Instance) resetTabCompletion() {
 	rl.modeTabCompletion = false
 	rl.tabCompletionSelect = false
 	rl.compConfirmWait = false
-	rl.tcOffset = 0
+
 	rl.tcUsedY = 0
 	rl.modeTabFind = false
 	rl.modeAutoFind = false

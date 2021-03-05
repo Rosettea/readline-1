@@ -6,7 +6,6 @@ package readline
 func (rl *Instance) updateHelpers() {
 
 	// Load all hints & completions before anything.
-	rl.tcOffset = 0
 	rl.getHintText()
 	if rl.modeTabCompletion {
 		rl.getTabCompletion()
