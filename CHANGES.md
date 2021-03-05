@@ -1,11 +1,14 @@
-# lmorg/readline
-
 ## Changes
 
-### 3.1.O
+
+### 4.0.0-beta
+---------
 
 This version is the merge of [maxlandon/readline](https://github.com/maxlandon/readline) 
-and [lmorg/readline](https://github.com/lmorg/readline):
+and [lmorg/readline](https://github.com/lmorg/readline). Therefore it both integrates parts
+from both libraries, but also adds a few features, with some API breaking changes (ex: completions),
+thus the new 4.0.0 version. Remains a beta because maxlandon/readline code has not been thoroughly
+test neither in nor of itself, and no more against `lmorg/murex`, it's main consumer until now.
 
 #### Code
 - Enhance delete/copy buffer in Vim mode
@@ -20,8 +23,22 @@ and [lmorg/readline](https://github.com/lmorg/readline):
 - Merged relevant parts of both READMEs
 - Use documentation from maxlandon/readline
 
+#### New features / bindings
+- CtrlL now clears the screen and reprints the prompt
+- Added evilsocket's tui colors/effects, for ease of use & integration with shell. Has not yet replaced the current `seqColor` variables everywhere though
+
+
+### 3.0.0
+---------
+
+- Added test (input line, prompt, correct refresh, etc)
+- Added multiline support
+- Added `DelayedTabContext` and `DelayedSyntaxWorker`
+
+
 
 ### 2.1.0
+---------
 
 Error returns from `readline` have been created as error a variable, which is
 more idiomatic to Go than the err constants that existed previously. Currently
