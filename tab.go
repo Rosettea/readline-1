@@ -1,6 +1,7 @@
 package readline
 
 import (
+	"context"
 	"fmt"
 	"strings"
 )
@@ -68,14 +69,39 @@ func (rl *Instance) getCompletionLine() (line []rune, pos int) {
 	}
 }
 
-// getNormalCompletion - Populates and sets up completion for normal comp mode
-func (rl *Instance) getNormalCompletion() {
-	rl.tcPrefix, rl.tcGroups = rl.TabCompleter(rl.getCompletionLine())
-	if len(rl.tcGroups) == 0 {
-		return
-	}
-	rl.tcGroups = checkNilItems(rl.tcGroups) // Avoid nil maps in groups
+// getCompletions - Calls the completion engine/function to yield a list of 0 or more completion groups,
+// sets up a delayed tab context and passes it on to the tab completion engine function, and ensure no
+// nil groups/items will pass through. This function is called by different comp search/nav modes.
+func (rl *Instance) getCompletions() {
 
+	// Cancel any existing tab context first.
+	if rl.delayedTabContext.cancel != nil {
+		rl.delayedTabContext.cancel()
+	}
+
+	// Recreate a new context
+	rl.delayedTabContext = DelayedTabContext{rl: rl}
+	rl.delayedTabContext.Context, rl.delayedTabContext.cancel = context.WithCancel(context.Background())
+
+	// Get the correct line to be completed, and the current cursor position
+	compLine, compPos := rl.getCompletionLine()
+
+	// Call up the completion engine/function to yield completion groups
+	rl.tcPrefix, rl.tcGroups = rl.TabCompleterAlt(compLine, compPos, rl.delayedTabContext)
+	// rl.tcPrefix, rl.tcGroups = rl.TabCompleter(rl.getCompletionLine())
+
+	// Avoid nil maps in groups. Maybe we could also pop any empty group.
+	rl.tcGroups = checkNilItems(rl.tcGroups)
+}
+
+// getNormalCompletion - Populates and sets up completion for normal comp mode.
+func (rl *Instance) getNormalCompletion() {
+
+	// Get completions groups, pass delayedTabContext and check nils
+	rl.getCompletions()
+
+	// Adjust the index for each group after the first:
+	// this ensures no latency when we will move around them.
 	for i, group := range rl.tcGroups {
 		group.init(rl)
 		if i != 0 {
@@ -189,15 +215,15 @@ func (rl *Instance) writeTabCompletion() {
 	fmt.Printf(completions)
 }
 
-// getTabSearchCompletion - Populates and sets up completion for completion search
+// getTabSearchCompletion - Populates and sets up completion for completion search.
 func (rl *Instance) getTabSearchCompletion() {
-	rl.tcPrefix, rl.tcGroups = rl.TabCompleter(rl.line, rl.pos)
+
+	// Get completions from the engine, and make sure there is a current group.
+	rl.getCompletions()
 	if len(rl.tcGroups) == 0 {
 		return
 	}
-
-	rl.tcGroups = checkNilItems(rl.tcGroups) // Avoid nil maps in groups
-	rl.getCurrentGroup()                     // Make sure there is a current group
+	rl.getCurrentGroup()
 
 	// Set the hint for this completion mode
 	rl.hintText = append([]rune("Completion search: "), rl.tfLine...)
@@ -214,7 +240,9 @@ func (rl *Instance) getTabSearchCompletion() {
 
 // getHistorySearchCompletion - Populates and sets up completion for command history search
 func (rl *Instance) getHistorySearchCompletion() {
-	rl.tcGroups = rl.completeHistory() // Refresh full list each time
+
+	// Refresh full list each time
+	rl.tcGroups = rl.completeHistory()
 	if len(rl.tcGroups) == 0 {
 		return
 	}

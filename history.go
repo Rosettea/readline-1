@@ -92,7 +92,13 @@ func (h *NullHistory) Dump() interface{} {
 
 // Browse historic lines:
 func (rl *Instance) walkHistory(i int) {
-	// Switch to correct history
+	var (
+		old, new string
+		dedup    bool
+		err      error
+	)
+
+	// Work with correct history source (depends on CtrlR/CtrlE)
 	var history History
 	if !rl.mainHist {
 		history = rl.altHistory
@@ -117,8 +123,9 @@ func (rl *Instance) walkHistory(i int) {
 		rl.lineBuf = string(rl.line)
 		return
 	default:
-		s, err := history.GetLine(history.Len() - rl.histPos - 1)
-		// s, err := history.GetLine(rl.histPos)
+		dedup = true
+		old = string(rl.line)
+		new, err = history.GetLine(history.Len() - rl.histPos - 1)
 		if err != nil {
 			rl.resetHelpers()
 			print("\r\n" + err.Error() + "\r\n")
@@ -128,11 +135,18 @@ func (rl *Instance) walkHistory(i int) {
 
 		rl.clearLine()
 		rl.histPos += i
-		rl.line = []rune(s)
+		rl.line = []rune(new)
 		rl.pos = len(rl.line)
 	}
 
+	// Update the line, and any helpers
 	rl.updateHelpers()
+
+	// In order to avoid having to type j/k twice each time for history navigation,
+	// we walk once again. This only ever happens when we aren't out of bounds.
+	if dedup && old == new {
+		rl.walkHistory(i)
+	}
 }
 
 // completeHistory - Populates a CompletionGroup with history and returns it the shell

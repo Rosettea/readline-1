@@ -27,6 +27,10 @@ test neither in nor of itself, and no more against `lmorg/murex`, it's main cons
 - CtrlL now clears the screen and reprints the prompt
 - Added evilsocket's tui colors/effects, for ease of use & integration with shell. Has not yet replaced the current `seqColor` variables everywhere though
 
+#### Changes I'm not sure of
+- is the function leftMost() in cursor.go useful ?
+- is the function getCursorPos() in cursor.go useful ?
+
 
 ### 3.0.0
 ---------
@@ -34,7 +38,6 @@ test neither in nor of itself, and no more against `lmorg/murex`, it's main cons
 - Added test (input line, prompt, correct refresh, etc)
 - Added multiline support
 - Added `DelayedTabContext` and `DelayedSyntaxWorker`
-
 
 
 ### 2.1.0

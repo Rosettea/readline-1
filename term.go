@@ -15,7 +15,7 @@ func GetTermWidth() (termWidth int) {
 	fd := int(os.Stdout.Fd())
 	termWidth, _, err = GetSize(fd)
 	if err != nil {
-		termWidth = 80
+		termWidth = 80 // The defacto standard on older terms
 	}
 
 	return
@@ -42,16 +42,9 @@ func print(s string) {
 	os.Stdout.WriteString(s)
 }
 
-/*func rLen(r []rune) (length int) {
-	for _, i := range r {
-		length += utf8.RuneLen(i)
-	}
-	return
-}*/
-
 var rxAnsiSgr = regexp.MustCompile("\x1b\\[[:;0-9]+m")
 
-// Gets the number of runes in a string and
+// Gets the number of runes in a string
 func strLen(s string) int {
 	s = rxAnsiSgr.ReplaceAllString(s, "")
 	return utf8.RuneCountInString(s)

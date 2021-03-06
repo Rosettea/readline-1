@@ -17,16 +17,15 @@ func delayedSyntaxTimer(rl *Instance, i int64) {
 		return
 	}
 
-	// if len(rl.line)+rl.promptLen > rl.termWidth {
-	if len(rl.line)+rl.promptLen > GetTermWidth() {
-		// line wraps, which is hard to do with random ANSI escape sequences
-		// so better we don't bother trying.
-		return
-	}
+	// if len(rl.line)+rl.promptLen > GetTermWidth() {
+	//         // line wraps, which is hard to do with random ANSI escape sequences
+	//         // so better we don't bother trying.
+	//         return
+	// }
 
-	newLine := rl.DelayedSyntaxWorker(rl.line)
+	// We pass either the current line or the one with the current completion.
+	newLine := rl.DelayedSyntaxWorker(rl.getLine())
 	var sLine string
-
 	count := atomic.LoadInt64(&rl.delayedSyntaxCount)
 	if count != i {
 		return

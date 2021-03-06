@@ -1,6 +1,7 @@
 package readline
 
 import (
+	"math"
 	"strings"
 )
 
@@ -12,11 +13,25 @@ func (rl *Instance) updateLine(line []rune) {
 	}
 }
 
+// getLine - In many places we need the current line input. We either return the real line,
+// or the one that includes the current completion candidate, if there is any.
+func (rl *Instance) getLine() []rune {
+	if len(rl.currentComp) > 0 {
+		return rl.lineComp
+	}
+	return rl.line
+}
+
+// echo - refresh the current input line, either virtually completed or not.
+// also renders the current completions and hints. To be noted, the updateReferences()
+// function is only ever called once, and after having moved back to prompt position
+// and having printed the line: this is so that at any moment, everyone has the good
+// values for moving around, synchronized with the update input line.
 func (rl *Instance) echo() {
 
 	// Then we print the prompt, and the line,
 	switch {
-	case rl.PasswordMask > 0:
+	case rl.PasswordMask != 0:
 		print(strings.Repeat(string(rl.PasswordMask), len(rl.line)) + " ")
 
 	default:
@@ -42,17 +57,17 @@ func (rl *Instance) echo() {
 		} else {
 			print(string(line) + " ")
 		}
-
-		// Update references with new coordinates only now, because
-		// the new line may be longer/shorter than the previous one.
-		rl.updateReferences()
-
-		// Go back to the current cursor position, with new coordinates
-		moveCursorBackwards(GetTermWidth())
-		moveCursorUp(rl.fullY)
-		moveCursorDown(rl.posY)
-		moveCursorForwards(rl.posX)
 	}
+
+	// Update references with new coordinates only now, because
+	// the new line may be longer/shorter than the previous one.
+	rl.updateReferences()
+
+	// Go back to the current cursor position, with new coordinates
+	moveCursorBackwards(GetTermWidth())
+	moveCursorUp(rl.fullY)
+	moveCursorDown(rl.posY)
+	moveCursorForwards(rl.posX)
 }
 
 func (rl *Instance) insert(r []rune) {
@@ -130,4 +145,40 @@ func (rl *Instance) clearLine() {
 
 	// Completions are also reset
 	rl.clearVirtualComp()
+}
+
+func lineWrap(rl *Instance, termWidth int) []string {
+
+	// Get either the current line, or the virtually completed one
+	realLine := rl.getLine()
+
+	var promptLen int
+	if rl.promptLen < termWidth {
+		promptLen = rl.promptLen
+	}
+
+	n := float64(len(realLine)+1) / (float64(termWidth) - float64(promptLen))
+	if n < 0 {
+		return []string{" "}
+	}
+
+	var (
+		ceil = int(math.Ceil(n))
+		wrap = make([]string, ceil)
+		l    = termWidth - promptLen
+		line = string(rl.line) + " "
+	)
+
+	for i := 0; i < ceil; i++ {
+		if i > 0 {
+			wrap[i] = strings.Repeat(" ", promptLen)
+		}
+		if i == ceil-1 {
+			wrap[i] += line[l*i:]
+			break
+		}
+		wrap[i] += line[l*i : l*(i+1)]
+	}
+
+	return wrap
 }

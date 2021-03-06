@@ -6,10 +6,12 @@ package readline
 func (rl *Instance) updateHelpers() {
 
 	// Load all hints & completions before anything.
+	// Thus overwrites anything having been dirtily added/forced/modified, like rl.SetHintText()
 	rl.getHintText()
 	if rl.modeTabCompletion {
 		rl.getTabCompletion()
 	}
+
 	// We clear everything
 	rl.clearHelpers()
 
@@ -107,7 +109,7 @@ func (rl *Instance) renderHelpers() {
 	// Print hints, check for any confirmation hint current.
 	// (do not overwrite the confirmation question hint)
 	if !rl.compConfirmWait {
-		rl.getHintText()
+		// rl.getHintText()
 		if len(rl.hintText) > 0 {
 			print("\n")
 			// moveCursorDown(1)

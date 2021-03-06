@@ -32,6 +32,9 @@ const (
 	vimKeysStr        = "[N]"
 )
 
+// vi - Apply a key to a Vi action. Note that as in the rest of the code, all cursor movements
+// have been moved away, and only the rl.pos is adjusted: when echoing the input line, the shell
+// will compute the new cursor pos accordingly.
 func (rl *Instance) vi(r rune) {
 
 	switch r {
@@ -238,7 +241,6 @@ func (rl *Instance) vi(r rune) {
 		// Set the main history as the one we navigate, by default
 		rl.mainHist = true
 		rl.walkHistory(1)
-		// rl.walkHistory(-1)
 	default:
 		if r <= '9' && '0' <= r {
 			rl.viIteration += string(r)
@@ -266,6 +268,8 @@ func (rl *Instance) refreshVimStatus() {
 	rl.renderHelpers()
 }
 
+// viHintMessage - lmorg's way of showing Vim status is to overwrite the hint.
+// Currently not used, as there is a possibility to show the current Vim mode in the prompt.
 func (rl *Instance) viHintMessage() {
 	switch rl.modeViMode {
 	case vimKeys:
