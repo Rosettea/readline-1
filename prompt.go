@@ -10,7 +10,7 @@ import (
 // prompt stores all prompt functions and strings,
 // and is in charge of printing them as well as
 // computing any resulting offsets.
-type prompt struct {
+type Prompt struct {
 	primary  string
 	primaryF func() string
 
@@ -37,32 +37,32 @@ type prompt struct {
 }
 
 // Primary uses a function returning the string to use as the primary prompt.
-func (p *prompt) Primary(prompt func() string) {
+func (p *Prompt) Primary(prompt func() string) {
 	p.primaryF = prompt
 }
 
 // Right uses a function returning the string to use as the right prompt.
-func (p *prompt) Right(prompt func() string) {
+func (p *Prompt) Right(prompt func() string) {
 	p.rightF = prompt
 }
 
 // Secondary uses a function returning the prompt to use as the secondary prompt.
-func (p *prompt) Secondary(prompt func() string) {
+func (p *Prompt) Secondary(prompt func() string) {
 	p.secondaryF = prompt
 }
 
 // Transient uses a function returning the prompt to use as a transient prompt.
-func (p *prompt) Transient(prompt func() string) {
+func (p *Prompt) Transient(prompt func() string) {
 	p.transientF = prompt
 }
 
 // Tooltip uses a function returning the prompt to use as a tooltip prompt.
-func (p *prompt) Tooltip(prompt func(tip string) string) {
+func (p *Prompt) Tooltip(prompt func(tip string) string) {
 	p.tooltipF = prompt
 }
 
 // initPrompt is ran once at the beginning of an instance start.
-func (p *prompt) init(rl *Instance) {
+func (p *Prompt) init(rl *Instance) {
 	// Generate the prompt strings for this run
 	if p.primaryF != nil {
 		p.primary = p.primaryF()
@@ -87,7 +87,7 @@ func (p *prompt) init(rl *Instance) {
 
 // getPromptPrimary returns either the entire prompt if
 // it's a single-line, or everything except the last line.
-func (p *prompt) getPrimary() string {
+func (p *Prompt) getPrimary() string {
 	var primary string
 
 	lastLineIndex := strings.LastIndex(p.primary, "\n")
@@ -101,7 +101,7 @@ func (p *prompt) getPrimary() string {
 }
 
 // Get the last line of the prompt to be printed.
-func (p *prompt) getPrimaryLastLine() string {
+func (p *Prompt) getPrimaryLastLine() string {
 	var lastLine string
 	lastLineIndex := strings.LastIndex(p.primary, "\n")
 	if lastLineIndex != -1 {
@@ -115,7 +115,7 @@ func (p *prompt) getPrimaryLastLine() string {
 
 // computePromptAlt computes the correct lengths and offsets
 // for all prompt components, but does not print any of them.
-func (p *prompt) compute(rl *Instance) {
+func (p *Prompt) compute(rl *Instance) {
 	prompt := p.primary
 
 	lastLineIndex := strings.LastIndex(prompt, "\n")
@@ -128,7 +128,7 @@ func (p *prompt) compute(rl *Instance) {
 
 // update is called after each key/widget processing, and refreshes
 // the prompts that need to be at these intervals.
-func (p *prompt) update(rl *Instance) {
+func (p *Prompt) update(rl *Instance) {
 	if rl.Prompt.tooltipF == nil {
 		return
 	}
@@ -143,7 +143,7 @@ func (p *prompt) update(rl *Instance) {
 	rl.Prompt.tooltip = rl.Prompt.tooltipF(tooltipWord)
 }
 
-func (p *prompt) printLast(rl *Instance) {
+func (p *Prompt) printLast(rl *Instance) {
 	// Either use RPROMPT or tooltip.
 	var rprompt string
 	if p.tooltip != "" {
@@ -180,7 +180,7 @@ func (p *prompt) printLast(rl *Instance) {
 	moveCursorBackwards(GetTermWidth())
 }
 
-func (p *prompt) printTransient(rl *Instance) {
+func (p *Prompt) printTransient(rl *Instance) {
 	if p.transientF == nil || !rl.config.PromptTransient {
 		return
 	}

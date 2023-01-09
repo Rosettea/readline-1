@@ -13,7 +13,7 @@ type Instance struct {
 	// The prompt supports all oh-my-posh prompt types (primary/rprompt/secondary/transient/tooltip)
 	// In addition, the shell offers some functions to refresh the prompt on demand, with varying
 	// behavior options (refresh below a message, or in place, etc)
-	Prompt *prompt
+	Prompt *Prompt
 
 	// Configuration stores all keymaps, prompt styles and other completion/helper settings.
 	config *config
@@ -169,7 +169,7 @@ func NewInstance() *Instance {
 	rl := new(Instance)
 
 	// Prompt
-	rl.Prompt = &prompt{
+	rl.Prompt = &Prompt{
 		primary: "$ ",
 	}
 	rl.Prompt.compute(rl)
