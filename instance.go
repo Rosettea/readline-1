@@ -16,7 +16,7 @@ type Instance struct {
 	Prompt *Prompt
 
 	// Configuration stores all keymaps, prompt styles and other completion/helper settings.
-	config *config
+	config Config
 
 	//
 	// Keymaps ------------------------------------------------------------------------------------

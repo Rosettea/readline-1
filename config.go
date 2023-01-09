@@ -32,7 +32,7 @@ var ErrNoSystemConfig = errors.New("no user configuration found in user director
 // complete list of keymaps. The configuration is always written/exported
 // as a YAML file, and any file to be imported as a configuration is also
 // unmarshaled as YAML.
-type config struct {
+type Config struct {
 	rl   *Instance
 	node *yaml.Node // Stores the configuration file bytes including comments.
 
@@ -65,15 +65,10 @@ type config struct {
 	AutoComplete bool `yaml:"autoComplete"`
 }
 
-// Config returns the current configuration of the readline instance.
-func (rl *Instance) Config() *config {
-	return rl.config
-}
-
 // Load looks for a configuration at the specified path (including file name).
 // It returns an error either if the file is not found, if the shell fails to read it,
 // or if its fails to unmarshal/load it.
-func (c *config) Load(path string) (err error) {
+func (c *Config) Load(path string) (err error) {
 	if err = c.load(path); err != nil {
 		return err
 	}
@@ -84,7 +79,7 @@ func (c *config) Load(path string) (err error) {
 	return nil
 }
 
-func (c *config) load(path string) (err error) {
+func (c *Config) load(path string) (err error) {
 	bytes, err := os.ReadFile(path)
 	if err != nil {
 		return
@@ -112,7 +107,7 @@ func (c *config) load(path string) (err error) {
 // LoadFromBytes loads a configuration from a bytes array.
 // It returns an error either if the shell fails to read it,
 // or if its fails to unmarshal/load it.
-func (c *config) LoadFromBytes(config []byte) (err error) {
+func (c *Config) LoadFromBytes(config []byte) (err error) {
 	// First load the yaml as node with comments
 	if err = yaml.Unmarshal(config, c.node); err != nil {
 		return
@@ -131,7 +126,7 @@ func (c *config) LoadFromBytes(config []byte) (err error) {
 // $XDG_CONFIG_HOME/reeflective/readline.yml
 // $HOME/.readline.yml.
 //
-func (c *config) LoadSystem() (err error) {
+func (c *Config) LoadSystem() (err error) {
 	xdgConfigHome := os.Getenv("XDG_CONFIG_HOME")
 	if xdgConfigHome != "" {
 		xdgConfigHomePath := filepath.Join(xdgConfigHome, "reeflective", configFileName)
@@ -153,7 +148,7 @@ func (c *config) LoadSystem() (err error) {
 // If the path is a directory, the configuration file is saved as '$path/.readline.yml'.
 // If any directory in the path does not exist, they are created (equivalent to mkdir -p).
 // It returns an error if the config cannot be written, or if the shell fails to marshal it.
-func (c *config) Save(path string) (err error) {
+func (c *Config) Save(path string) (err error) {
 	// Create the complete path (including file) if it does not exist
 	if _, err = os.Stat(path); os.IsNotExist(err) {
 		if err = os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
@@ -182,7 +177,7 @@ func (c *config) Save(path string) (err error) {
 // - If $XDG_CONFIG_HOME is defined, saves to $XDG_CONFIG_HOME/reeflective/readline.yml
 // - Else, saves to $HOME/.readline.yml.
 //
-func (c *config) SaveSystem() (err error) {
+func (c *Config) SaveSystem() (err error) {
 	var path string
 
 	// In home by default.
@@ -206,7 +201,7 @@ func (c *config) SaveSystem() (err error) {
 //
 // This function is useful if you tried to load the system configuration, but
 // that you could not find any. This thus gives the user a new default config.
-func (c *config) SaveDefault(path string) (err error) {
+func (c *Config) SaveDefault(path string) (err error) {
 	// Use the default directory if the path is empty
 	if path == "" {
 		// In home by default.
@@ -239,7 +234,7 @@ func (c *config) SaveDefault(path string) (err error) {
 // Note that currently comments are not preserved in the output, so
 // it is advised to first save a copy with SaveDefault() if you want
 // to have indications on settings, and then load => merge/overwrite it.
-func (c *config) Export() (config []byte, err error) {
+func (c *Config) Export() (config []byte, err error) {
 	// The node marshals the configuration first, without comments.
 	config, err = yaml.Marshal(c)
 	if err != nil {
