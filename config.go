@@ -65,6 +65,10 @@ type Config struct {
 	AutoComplete bool `yaml:"autoComplete"`
 }
 
+func (rl *Instance) Config() *Config {
+	return rl.config
+}
+
 // Load looks for a configuration at the specified path (including file name).
 // It returns an error either if the file is not found, if the shell fails to read it,
 // or if its fails to unmarshal/load it.
