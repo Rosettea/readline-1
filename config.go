@@ -252,7 +252,7 @@ func (c *Config) Export() (config []byte, err error) {
 // loadDefaultConfig loads all default keymaps for input/shell control.
 // This function is always executed, even before loading any custom config.
 func (rl *Instance) loadDefaultConfig() {
-	config := &config{
+	config := &Config{
 		rl:   rl,
 		node: &yaml.Node{},
 
